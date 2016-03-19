@@ -19,4 +19,31 @@ You can obtain a script from Microsoft [here](https://support.microsoft.com/en-u
 You can then take that script, run it on your new SQL Server to set up the server logins there. Obviously taking care to look over it before you execute it to make sure that it has captured everything and to ensure that you are not copying over anything that you do not need on your new instance.
 
 The script will set up the logins on your new server in using the default language configured for that server so make sure that is configured correctly first.
-- See more at: http://dbadiaries.com/how-to-transfer-logins-to-another-sql-server-or-instance/#sthash.g98CRp9I.dpuf
+
+## So what is a SID? ##
+
+SID is short for “security identifier” A SID is an internal id which gets assigned to a server login when the login is created.
+
+The SID can be viewed by querying the sys.server_principals system view or you can also view it by looking at sys.syslogins
+
+Unless you create your logins on your new server using a method such as the sp_help_revlogin or the SSIS transfer logins task with “CopySids” enabled, your logins will be created with new SIDs.
+
+I am not sure whether it is possible that your new server will ever assign the same SID but I do know that it is very unlikely. Perhaps you have more chance of winning the lottery jackpot
+
+## So what problems does this cause? ##
+
+As the SIDs are different, when you come to copy across/restore your databases from your old server, the database logins simply won’t work as they will be orphaned from their original SID.
+
+You may encounter this error for example if you try and add a server login to a database which you have just copied across:
+
+    **Error 15023: User already exists in current database**
+
+This will then need to be corrected.
+
+There is a procedure that you can run in order to do this and it basically takes the server login and database login and marries them up by name with the same SID.
+
+This procedure is called **sp_change_users_login** and I’m going to explain below.
+
+## sp_change_users_login to the rescue! ##
+
+Firstly, there may be a number of orphaned users, so the best thing to do is run **Orphan_Checks.sql** inside each database you are checking

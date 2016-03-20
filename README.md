@@ -48,4 +48,4 @@ This procedure is called **sp_change_users_login** and I’m going to explain be
 
 Firstly, there may be a number of orphaned users, so the best thing to do is run **Orphan_Checks.sql** inside each database you are checking
 
-If you already have a login which you want to map your database user to, you could run Orphan_Update.sql (note that the first instance of ‘Username1’ is the user in the database, the second instance is the login to be mapped to)
+If you already have a login which you want to map your database user to, you could run **Orphan_Update.sql** (note that the first instance of ‘Username1’ is the user in the database, the second instance is the login to be mapped to)
